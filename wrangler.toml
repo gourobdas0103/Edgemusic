@@ -1,0 +1,16 @@
+name = "edgemusic"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "edgemusic-db"
+database_id = "local-edgemusic-db"
+
+[[r2_buckets]]
+binding = "MUSIC_BUCKET"
+bucket_name = "edgemusic-tracks"

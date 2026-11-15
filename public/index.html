@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EdgeMusic — Serverless Cloud Audio Streamer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">🎵</span>
+        <h2>EdgeMusic</h2>
+      </div>
+      <p class="brand-tagline">Cloudflare Workers • D1 • R2</p>
+
+      <button class="btn btn-primary upload-trigger" onclick="openUploadModal()">
+        <span>+</span> Upload Audio
+      </button>
+
+      <nav class="nav-menu">
+        <a href="#" class="nav-item active">📻 Cloud Library</a>
+        <a href="#stats" class="nav-item">📊 Storage Metrics</a>
+      </nav>
+
+      <div class="stack-card">
+        <h4>Cloudflare Serverless</h4>
+        <div class="stack-tags">
+          <span class="tag tag-workers">Workers API</span>
+          <span class="tag tag-d1">D1 Database</span>
+          <span class="tag tag-r2">R2 Storage</span>
+          <span class="tag tag-assets">Static Assets</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-viewport">
+      <!-- Top Bar -->
+      <header class="header-bar">
+        <div class="header-title">
+          <h1>Track Library</h1>
+          <p id="trackCounter">Loading audio assets...</p>
+        </div>
+        <div class="header-search">
+          <input type="text" id="searchInput" placeholder="Search track, artist, genre..." oninput="handleSearch()">
+        </div>
+      </header>
+
+      <!-- Status Banner -->
+      <div id="statusBanner" class="status-banner" style="display:none;"></div>
+
+      <!-- Tracks Table -->
+      <section class="table-card">
+        <table class="tracks-table">
+          <thead>
+            <tr>
+              <th width="50">#</th>
+              <th>Track Details</th>
+              <th>Artist</th>
+              <th>Genre</th>
+              <th width="150">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="trackTableBody">
+            <!-- Dynamically populated from Cloudflare D1 -->
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <!-- Bottom Fixed Audio Player Bar -->
+    <footer class="player-bar">
+      <!-- Left: Currently Playing Track Info -->
+      <div class="player-left">
+        <div class="cover-art">🎵</div>
+        <div class="track-meta">
+          <h4 id="nowPlayingTitle">No track selected</h4>
+          <p id="nowPlayingArtist">Select a track from the library</p>
+        </div>
+      </div>
+
+      <!-- Center: Controls & Scrubbing Bar -->
+      <div class="player-center">
+        <div class="control-row">
+          <button class="ctrl-btn play-pause-btn" id="playBtn" onclick="togglePlayback()">▶</button>
+        </div>
+        <div class="scrubber-row">
+          <span id="currentTimeDisplay">0:00</span>
+          <input type="range" id="seekSlider" class="slider" min="0" max="100" value="0" oninput="handleSeek()">
+          <span id="durationDisplay">0:00</span>
+        </div>
+      </div>
+
+      <!-- Right: Volume -->
+      <div class="player-right">
+        <span class="vol-icon">🔊</span>
+        <input type="range" id="volumeSlider" class="slider volume-slider" min="0" max="1" step="0.05" value="0.85" oninput="handleVolume()">
+      </div>
+    </footer>
+  </div>
+
+  <!-- Hidden Native Audio Engine -->
+  <audio id="nativeAudio"></audio>
+
+  <!-- Upload Modal -->
+  <div id="uploadModal" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Upload Audio Track to Cloudflare R2</h3>
+        <button class="close-btn" onclick="closeUploadModal()">&times;</button>
+      </div>
+      <form id="uploadForm" onsubmit="submitUpload(event)">
+        <div class="form-group">
+          <label for="trackTitle">Track Title *</label>
+          <input type="text" id="trackTitle" required placeholder="e.g. DevOps Journey Episode 1">
+        </div>
+        <div class="form-group">
+          <label for="trackArtist">Artist / Creator *</label>
+          <input type="text" id="trackArtist" required placeholder="e.g. Gourob Das">
+        </div>
+        <div class="form-group">
+          <label for="trackGenre">Category / Genre</label>
+          <select id="trackGenre">
+            <option value="Podcast">Podcast</option>
+            <option value="Tech Talk">Tech Talk</option>
+            <option value="Lo-Fi">Lo-Fi</option>
+            <option value="Electronic">Electronic</option>
+            <option value="Ambient">Ambient</option>
+            <option value="Tutorial">Tutorial</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="audioFileInput">Select Audio File (.mp3, .wav, .m4a) *</label>
+          <input type="file" id="audioFileInput" accept="audio/*" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeUploadModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="uploadSubmitBtn">Upload to R2 & Save to D1</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Track Metadata Modal -->
+  <div id="editModal" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Edit Track Metadata (Cloudflare D1)</h3>
+        <button class="close-btn" onclick="closeEditModal()">&times;</button>
+      </div>
+      <form id="editForm" onsubmit="submitEdit(event)">
+        <input type="hidden" id="editTrackId">
+        <div class="form-group">
+          <label for="editTitle">Track Title *</label>
+          <input type="text" id="editTitle" required>
+        </div>
+        <div class="form-group">
+          <label for="editArtist">Artist / Creator *</label>
+          <input type="text" id="editArtist" required>
+        </div>
+        <div class="form-group">
+          <label for="editGenre">Genre / Category</label>
+          <select id="editGenre">
+            <option value="Podcast">Podcast</option>
+            <option value="Tech Talk">Tech Talk</option>
+            <option value="Lo-Fi">Lo-Fi</option>
+            <option value="Electronic">Electronic</option>
+            <option value="Ambient">Ambient</option>
+            <option value="Tutorial">Tutorial</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="editSubmitBtn">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

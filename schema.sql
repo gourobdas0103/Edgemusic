@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS tracks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    artist TEXT NOT NULL,
+    genre TEXT DEFAULT 'Podcast',
+    duration TEXT DEFAULT '0:00',
+    r2_key TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
