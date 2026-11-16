@@ -17,7 +17,7 @@
 | Deliverable | URL | Description | Status |
 |---|---|---|---|
 | **🚀 Live Application** | [https://edgemusic.gourobdas0103.workers.dev](https://edgemusic.gourobdas0103.workers.dev) | Globally distributed production application on Cloudflare Edge | **Live & Verified** ✅ |
-| **📹 Loom Video Demo** | [https://www.loom.com/share/9b93cbae770c4bc69172ef2818234cc4](https://www.loom.com/share/8ccecf5cabef45f2ba9554e9bba6b36e) | End-to-end architecture walkthrough & feature demonstration | **Completed** ✅ |
+| **📹 Loom Video Demo** | [https://www.loom.com/share/9b93cbae770c4bc69172ef2818234cc4](https://www.loom.com/share/9b93cbae770c4bc69172ef2818234cc4) | End-to-end architecture walkthrough & feature demonstration | **Completed** ✅ |
 | **💻 GitHub Repository** | [https://github.com/gourobdas0103/Edgemusic](https://github.com/gourobdas0103/Edgemusic) | Source code, D1 schema, Wrangler configuration, and CI/CD workflow | **Public & Passing** ✅ |
 
 ---
