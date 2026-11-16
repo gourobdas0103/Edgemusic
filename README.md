@@ -202,6 +202,6 @@ MIT License. Built for DevOps & Cloud Exploration Internship Task 5.
 **Author:** Gourob Das ([@gourobdas0103](https://github.com/gourobdas0103))
 **Role:** DevOps Engineering Intern
 **Organization:** PearlThoughts
-**Repository:** `PearlThoughts-Intern-DevOps/frappe-crm-devops-internship`
+**Repository:** `https://github.com/gourobdas0103/Edgemusic`
 **Branch:** `task5-gourobdas0103`
 **Submission Date:** 16 November 2026
