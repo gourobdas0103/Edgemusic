@@ -9,7 +9,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "edgemusic-db"
-database_id = "local-edgemusic-db"
+database_id = "393e730b-9a2e-4b88-b5c2-cf85532a4d4e"
 
 [[r2_buckets]]
 binding = "MUSIC_BUCKET"
